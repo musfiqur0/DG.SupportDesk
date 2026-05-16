@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="DG.SupportDesk.Api/DG.SupportDesk.Api.csproj" />
+  <Project Path="DG.SupportDesk.Application/DG.SupportDesk.Application.csproj" />
+  <Project Path="DG.SupportDesk.Domain/DG.SupportDesk.Domain.csproj" />
+  <Project Path="DG.SupportDesk.Infrastructure/DG.SupportDesk.Infrastructure.csproj" />
+</Solution>

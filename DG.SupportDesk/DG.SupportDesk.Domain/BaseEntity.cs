@@ -2,12 +2,10 @@
 
 public class BaseEntity
 {
-    public long Id { get; set; }
+    public Guid Id { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public long? CreatedBy { get; set; }
+    public Guid? CreatedBy { get; set; }
     public DateTime? UpdatedAt { get; set; }
-    public long? UpdatedBy { get; set; }
-
-    // 1 = Active, 0 = Deleted/Inactive
-    public long StatusTypeId { get; set; } = 1;
+    public Guid? UpdatedBy { get; set; }
+    public bool IsActive { get; set; }
 }

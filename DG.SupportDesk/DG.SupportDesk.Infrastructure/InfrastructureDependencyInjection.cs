@@ -1,6 +1,6 @@
-﻿using DG.SupportDesk.Application.Abstractions.Repositories.Support;
+﻿using DG.SupportDesk.Application.Abstractions.Persistence;
 using DG.SupportDesk.Infrastructure.Persistence;
-using DG.SupportDesk.Infrastructure.Repositories;
+using DG.SupportDesk.Infrastructure.Persistence.Seeds;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,15 +14,12 @@ public static class InfrastructureDependencyInjection
         IConfiguration configuration)
     {
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")),
+            optionsLifetime: ServiceLifetime.Singleton);
 
-        services.AddScoped<ITenantRepository, TenantRepository>();
-        services.AddScoped<IProductProjectRepository, ProductProjectRepository>();
-        services.AddScoped<ISupportTicketRepository, SupportTicketRepository>();
-        services.AddScoped<ISupportTicketCommentRepository, SupportTicketCommentRepository>();
-        services.AddScoped<ISupportTicketAttachmentRepository, SupportTicketAttachmentRepository>();
-        services.AddScoped<ISupportTicketStatusHistoryRepository, SupportTicketStatusHistoryRepository>();
+        services.AddScoped<ISupportDeskDbContext, ApplicationDbContext>();
 
+        services.AddScoped<SeedData>();
         return services;
     }
 }

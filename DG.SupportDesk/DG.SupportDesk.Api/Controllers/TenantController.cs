@@ -1,36 +1,123 @@
-﻿using DG.SupportDesk.Application.Abstractions.Services;
-using DG.SupportDesk.Application.Dtos.Tenant;
+﻿using DG.SupportDesk.Application.Dtos.Common;
+using DG.SupportDesk.Application.Features.Tenants.Commands.CreateTenant;
+using DG.SupportDesk.Application.Features.Tenants.Commands.DeleteTenant;
+using DG.SupportDesk.Application.Features.Tenants.Commands.HardDeleteTenant;
+using DG.SupportDesk.Application.Features.Tenants.Commands.UpdateTenant;
+using DG.SupportDesk.Application.Features.Tenants.Contracts;
+using DG.SupportDesk.Application.Features.Tenants.Queries.GetTenantByCode;
+using DG.SupportDesk.Application.Features.Tenants.Queries.GetTenantById;
+using DG.SupportDesk.Application.Features.Tenants.Queries.GetTenants;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Wolverine;
 
 namespace DG.SupportDesk.Api.Controllers;
 
-[Route("api/[controller]/[action]")]
+[Route("api/v1/[controller]/[action]")]
 [ApiController]
 public class TenantController : ControllerBase
 {
-    private readonly ITenantService _tenantService;
+    private readonly IMessageBus _bus;
 
-    public TenantController(ITenantService tenantService)
+    public TenantController(IMessageBus bus)
     {
-        _tenantService = tenantService;
+        _bus = bus;
     }
 
     [HttpPost]
     public async Task<IActionResult> Add(
-        [FromBody] TenantAddDTO dto,
+        [FromBody] CreateTenantCommand command,
         CancellationToken ct = default)
     {
-        var response = await _tenantService.Add(dto, ct);
-        return response.Success ? Ok(response) : BadRequest(response);
+        try
+        {
+            var response = await _bus.InvokeAsync<ServiceResponseDTO<TenantResponseDTO>>(
+                command,
+                ct);
+
+            return response.Success ? Ok(response) : BadRequest(response);
+        }
+        catch (ValidationException ex)
+        {
+            return ValidationBadRequest(ex);
+        }
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> Update(
+        [FromBody] UpdateTenantCommand command,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            var response = await _bus.InvokeAsync<ServiceResponseDTO<TenantResponseDTO>>(
+                command,
+                ct);
+
+            return response.Success ? Ok(response) : BadRequest(response);
+        }
+        catch (ValidationException ex)
+        {
+            return ValidationBadRequest(ex);
+        }
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> Delete(
+        Guid id,
+        Guid? updatedBy = null,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            var response = await _bus.InvokeAsync<ServiceResponseDTO<bool>>(
+                new DeleteTenantCommand(id, updatedBy),
+                ct);
+
+            return response.Success ? Ok(response) : NotFound(response);
+        }
+        catch (ValidationException ex)
+        {
+            return ValidationBadRequest(ex);
+        }
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> HardDelete(
+        Guid id,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            var response = await _bus.InvokeAsync<ServiceResponseDTO<bool>>(
+                new HardDeleteTenantCommand(id),
+                ct);
+
+            return response.Success ? Ok(response) : NotFound(response);
+        }
+        catch (ValidationException ex)
+        {
+            return ValidationBadRequest(ex);
+        }
     }
 
     [HttpGet]
     public async Task<IActionResult> GetById(
-        long id,
+        Guid id,
         CancellationToken ct = default)
     {
-        var response = await _tenantService.GetById(id, ct);
-        return response.Success ? Ok(response) : NotFound(response);
+        try
+        {
+            var response = await _bus.InvokeAsync<ServiceResponseDTO<TenantResponseDTO>>(
+                new GetTenantByIdQuery(id),
+                ct);
+
+            return response.Success ? Ok(response) : NotFound(response);
+        }
+        catch (ValidationException ex)
+        {
+            return ValidationBadRequest(ex);
+        }
     }
 
     [HttpGet]
@@ -38,8 +125,18 @@ public class TenantController : ControllerBase
         string code,
         CancellationToken ct = default)
     {
-        var response = await _tenantService.GetByCode(code, ct);
-        return response.Success ? Ok(response) : NotFound(response);
+        try
+        {
+            var response = await _bus.InvokeAsync<ServiceResponseDTO<TenantResponseDTO>>(
+                new GetTenantByCodeQuery(code),
+                ct);
+
+            return response.Success ? Ok(response) : NotFound(response);
+        }
+        catch (ValidationException ex)
+        {
+            return ValidationBadRequest(ex);
+        }
     }
 
     [HttpGet]
@@ -48,34 +145,33 @@ public class TenantController : ControllerBase
         int? pageSize = null,
         CancellationToken ct = default)
     {
-        var response = await _tenantService.GetAll(pageNumber, pageSize, ct);
-        return response.Success ? Ok(response) : BadRequest(response);
+        try
+        {
+            var response = await _bus.InvokeAsync<ServiceResponseDTO<PagedResponseDTO<TenantResponseDTO>>>(
+                new GetTenantsQuery(pageNumber, pageSize),
+                ct);
+
+            return response.Success ? Ok(response) : BadRequest(response);
+        }
+        catch (ValidationException ex)
+        {
+            return ValidationBadRequest(ex);
+        }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update(
-        [FromBody] TenantUpdateDTO dto,
-        CancellationToken ct = default)
+    private BadRequestObjectResult ValidationBadRequest(ValidationException ex)
     {
-        var response = await _tenantService.Update(dto, ct);
-        return response.Success ? Ok(response) : BadRequest(response);
-    }
+        var errors = ex.Errors
+            .GroupBy(x => x.PropertyName)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(x => x.ErrorMessage).Distinct().ToArray());
 
-    [HttpDelete]
-    public async Task<IActionResult> Delete(
-        long id,
-        CancellationToken ct = default)
-    {
-        var response = await _tenantService.Delete(id, ct);
-        return response.Success ? Ok(response) : NotFound(response);
-    }
-
-    [HttpDelete]
-    public async Task<IActionResult> HardDelete(
-        long id,
-        CancellationToken ct = default)
-    {
-        var response = await _tenantService.HardDelete(id, ct);
-        return response.Success ? Ok(response) : NotFound(response);
+        return BadRequest(new
+        {
+            Success = false,
+            Message = "Validation failed. Please check the submitted data.",
+            Errors = errors
+        });
     }
 }

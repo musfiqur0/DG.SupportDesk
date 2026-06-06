@@ -1,4 +1,5 @@
-﻿using DG.SupportDesk.Domain.Models.Support;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace DG.SupportDesk.Domain.Models;
 
@@ -6,6 +7,7 @@ public class Tenant : BaseEntity
 {
     public string Name { get; set; } = null!;
     public string Code { get; set; } = null!;
+    public Guid TenantTypeId { get; set; }
 
-    public ICollection<ProductProject> ProductProjects { get; set; } = new List<ProductProject>();
+    public TenantType TenantType { get; set; } = null!;
 }

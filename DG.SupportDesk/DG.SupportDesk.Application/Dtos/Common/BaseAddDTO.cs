@@ -2,8 +2,8 @@
 
 public class BaseAddDTO
 {
-    public long TenantId { get; set; }
-    public long StatusTypeId { get; set; } = 1;
+    public Guid TenantId { get; set; }
+    public bool IsActive { get; set; }
 
-    public long? CreatedBy { get; set; }
+    public Guid? CreatedBy { get; set; }
 }

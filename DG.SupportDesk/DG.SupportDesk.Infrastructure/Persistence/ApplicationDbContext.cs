@@ -1,15 +1,21 @@
-﻿using DG.SupportDesk.Domain.Models;
-using DG.SupportDesk.Domain.Models.Support;
+﻿using DG.SupportDesk.Application.Abstractions.Persistence;
+using DG.SupportDesk.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace DG.SupportDesk.Infrastructure.Persistence;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : DbContext, ISupportDeskDbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
+    public DbSet<TenantType> TenantTypes => Set<TenantType>();
+    public DbSet<IssueCategoryType> IssueCategoryTypes => Set<IssueCategoryType>();
+    public DbSet<PriorityType> PriorityTypes => Set<PriorityType>();
+    public DbSet<SupportLevelType> SupportLevelTypes => Set<SupportLevelType>();
+    public DbSet<TicketStatusType> TicketStatusTypes => Set<TicketStatusType>();
+
     public DbSet<Tenant> Tenants => Set<Tenant>();
-    public DbSet<ProductProject> ProductProjects => Set<ProductProject>();
+    public DbSet<TenantConfiguration> TenantConfigurations => Set<TenantConfiguration>();
     public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
     public DbSet<SupportTicketComment> SupportTicketComments => Set<SupportTicketComment>();
     public DbSet<SupportTicketAttachment> SupportTicketAttachments => Set<SupportTicketAttachment>();
@@ -18,50 +24,52 @@ public class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
-        ConfigureTenant(modelBuilder);
-        ConfigureProductProject(modelBuilder);
+        //ConfigureTenant(modelBuilder);
+        //ConfigureTenantType(modelBuilder);
         ConfigureSupportTicket(modelBuilder);
         ConfigureSupportTicketComment(modelBuilder);
         ConfigureSupportTicketAttachment(modelBuilder);
         ConfigureSupportTicketStatusHistory(modelBuilder);
+        //ConfigureTenantConfiguration(modelBuilder);
     }
 
-    private static void ConfigureTenant(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<Tenant>(entity =>
-        {
-            //entity.ToTable("Tenants");
+    //private static void ConfigureTenant(ModelBuilder modelBuilder)
+    //{
+    //    modelBuilder.Entity<Tenant>(entity =>
+    //    {
+    //        //entity.ToTable("Tenants");
 
-            //entity.HasKey(x => x.Id);
+    //        //entity.HasKey(x => x.Id);
 
-            entity.Property(x => x.Name).HasMaxLength(200).IsRequired();
-            entity.Property(x => x.Code).HasMaxLength(50).IsRequired();
+    //        entity.Property(x => x.Name).HasMaxLength(200).IsRequired();
+    //        entity.Property(x => x.Code).HasMaxLength(50).IsRequired();
 
-            entity.HasIndex(x => x.Code).IsUnique();
-        });
-    }
+    //        entity.HasIndex(x => x.Code).IsUnique();
+    //    });
+    //}
 
-    private static void ConfigureProductProject(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<ProductProject>(entity =>
-        {
-            //entity.ToTable("ProductProjects");
+    //private static void ConfigureTenantType(ModelBuilder modelBuilder)
+    //{
+    //    modelBuilder.Entity<TenantType>(entity =>
+    //    {
+    //        //entity.ToTable("TenantTypes");
 
-            //entity.HasKey(x => x.Id);
+    //        //entity.HasKey(x => x.Id);
 
-            entity.Property(x => x.Name).HasMaxLength(200).IsRequired();
-            entity.Property(x => x.Code).HasMaxLength(50).IsRequired();
-            entity.Property(x => x.Description).HasMaxLength(1000);
+    //        entity.Property(x => x.Name).HasMaxLength(200).IsRequired();
+    //        entity.Property(x => x.Code).HasMaxLength(50).IsRequired();
+    //        entity.Property(x => x.Description).HasMaxLength(1000);
 
-            entity.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+    //        entity.HasIndex(x => new { x.Code }).IsUnique();
 
-            //entity.HasOne(x => x.Tenant)
-            //    .WithMany(x => x.ProductProjects)
-            //    .HasForeignKey(x => x.TenantId)
-            //    .OnDelete(DeleteBehavior.Restrict);
-        });
-    }
+    //        //entity.HasOne(x => x.Tenant)
+    //        //    .WithMany(x => x.TenantTypes)
+    //        //    .HasForeignKey(x => x.TenantId)
+    //        //    .OnDelete(DeleteBehavior.Restrict);
+    //    });
+    //}
 
     private static void ConfigureSupportTicket(ModelBuilder modelBuilder)
     {
@@ -77,25 +85,24 @@ public class ApplicationDbContext : DbContext
 
             entity.Property(x => x.TicketCode).HasMaxLength(50);
 
-            entity.Property(x => x.IssueName).HasMaxLength(200).IsRequired();
             entity.Property(x => x.IssueTitle).HasMaxLength(300).IsRequired();
             entity.Property(x => x.IssueDescription).HasMaxLength(5000).IsRequired();
 
-            entity.Property(x => x.IssuerPhoneNo).HasMaxLength(30);
-            entity.Property(x => x.IssuerEmail).HasMaxLength(150);
+            //entity.Property(x => x.IssuerPhoneNo).HasMaxLength(30);
+            //entity.Property(x => x.IssuerEmail).HasMaxLength(150);
 
-            entity.Property(x => x.ResolverPhoneNo).HasMaxLength(30);
-            entity.Property(x => x.ResolverEmail).HasMaxLength(150);
+            //entity.Property(x => x.ResolverPhoneNo).HasMaxLength(30);
+            //entity.Property(x => x.ResolverEmail).HasMaxLength(150);
 
             entity.Property(x => x.Remarks).HasMaxLength(1000);
 
-            entity.Property(x => x.IssueCategoryTypeId).HasConversion<long>();
-            entity.Property(x => x.PriorityTypeId).HasConversion<long>();
-            entity.Property(x => x.SupportLevelTypeId).HasConversion<long>();
-            entity.Property(x => x.TicketStatusTypeId).HasConversion<long>();
+            entity.Property(x => x.IssueCategoryTypeId).HasColumnType("uuid");
+            entity.Property(x => x.PriorityTypeId).HasColumnType("uuid");
+            entity.Property(x => x.SupportLevelTypeId).HasColumnType("uuid");
+            entity.Property(x => x.TicketStatusTypeId).HasColumnType("uuid");
 
             entity.HasIndex(x => new { x.TenantId, x.TicketCode }).IsUnique();
-            //entity.HasIndex(x => new { x.TenantId, x.ProductProjectId });
+            //entity.HasIndex(x => new { x.TenantId, x.TenantTypeId });
             //entity.HasIndex(x => new { x.TenantId, x.TicketStatusTypeId });
             //entity.HasIndex(x => new { x.TenantId, x.PriorityTypeId });
 
@@ -104,9 +111,9 @@ public class ApplicationDbContext : DbContext
             //    .HasForeignKey(x => x.TenantId)
             //    .OnDelete(DeleteBehavior.Restrict);
 
-            //entity.HasOne(x => x.ProductProject)
+            //entity.HasOne(x => x.TenantType)
             //    .WithMany(x => x.SupportTickets)
-            //    .HasForeignKey(x => x.ProductProjectId)
+            //    .HasForeignKey(x => x.TenantTypeId)
             //    .OnDelete(DeleteBehavior.Restrict);
         });
     }
@@ -140,7 +147,7 @@ public class ApplicationDbContext : DbContext
 
             entity.Property(x => x.FileName).HasMaxLength(300).IsRequired();
             entity.Property(x => x.FileUrl).HasMaxLength(1000).IsRequired();
-            entity.Property(x => x.ContentType).HasMaxLength(150);
+            //entity.Property(x => x.ContentType).HasMaxLength(150);
 
             //entity.HasIndex(x => new { x.TenantId, x.SupportTicketId });
 
@@ -159,8 +166,8 @@ public class ApplicationDbContext : DbContext
 
             entity.HasKey(x => x.Id);
 
-            entity.Property(x => x.FromTicketStatusTypeId).HasConversion<long?>();
-            entity.Property(x => x.ToTicketStatusTypeId).HasConversion<long>();
+            entity.Property(x => x.FromTicketStatusTypeId).HasColumnType("uuid");
+            entity.Property(x => x.ToTicketStatusTypeId).HasColumnType("uuid");
 
             entity.Property(x => x.Remarks).HasMaxLength(1000);
 
@@ -172,4 +179,14 @@ public class ApplicationDbContext : DbContext
             //    .OnDelete(DeleteBehavior.Cascade);
         });
     }
+
+    //private static void ConfigureTenantConfiguration(ModelBuilder modelBuilder)
+    //{
+    //    modelBuilder.Entity<TenantConfiguration>(entity =>
+    //    {
+    //        entity.Property(x => x.TenantId).HasColumnType("uuid").IsRequired();
+    //        entity.Property(x => x.ConfigurationType).HasMaxLength(100).IsRequired();
+    //        entity.Property(x => x.ConfigurationJson).HasColumnType("jsonb").IsRequired();
+    //    });
+    //}
 }

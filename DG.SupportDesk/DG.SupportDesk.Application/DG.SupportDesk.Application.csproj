@@ -18,6 +18,7 @@
   <ItemGroup>
     <Folder Include="Abstractions\Repositories\" />
     <Folder Include="Abstractions\Services\" />
+    <Folder Include="Features\TenantConfigurations\Commands\CreateTenantConfiguration - Copy %284%29\" />
     <Folder Include="Services\" />
   </ItemGroup>
 

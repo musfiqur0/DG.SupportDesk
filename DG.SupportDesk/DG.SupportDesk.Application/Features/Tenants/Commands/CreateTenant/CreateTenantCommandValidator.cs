@@ -1,11 +1,8 @@
 ﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DG.SupportDesk.Application.Features.Tenants.Commands.CreateTenant;
 
-public sealed class CreateTenantCommandValidator: AbstractValidator<CreateTenantCommand>
+public sealed class CreateTenantCommandValidator : AbstractValidator<CreateTenantCommand>
 {
     public CreateTenantCommandValidator()
     {

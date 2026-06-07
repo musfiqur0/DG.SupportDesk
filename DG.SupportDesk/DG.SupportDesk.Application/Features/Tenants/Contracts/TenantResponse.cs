@@ -1,7 +1,4 @@
-﻿using DG.SupportDesk.Application.Dtos.Common;
-using System.ComponentModel.DataAnnotations;
-
-namespace DG.SupportDesk.Application.Features.Tenants.Contracts;
+﻿namespace DG.SupportDesk.Application.Features.Tenants.Contracts;
 
 public class TenantResponse //: BaseResponseDTO<Guid>
 {

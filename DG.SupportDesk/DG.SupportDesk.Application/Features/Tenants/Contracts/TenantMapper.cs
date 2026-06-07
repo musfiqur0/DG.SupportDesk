@@ -4,9 +4,9 @@ namespace DG.SupportDesk.Application.Features.Tenants.Contracts;
 
 public static class TenantMapper
 {
-    public static TenantResponseDTO ToResponse(Tenant entity)
+    public static TenantResponse ToResponse(Tenant entity)
     {
-        return new TenantResponseDTO
+        return new TenantResponse
         {
             Id = entity.Id,
             Name = entity.Name,

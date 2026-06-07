@@ -14,14 +14,14 @@ public class GetTenantByIdHandler
         _db = db;
     }
 
-    public async Task<ServiceResponseDTO<TenantResponseDTO>> Handle(
+    public async Task<ServiceResponse<TenantResponse>> Handle(
         GetTenantByIdQuery query,
         CancellationToken ct)
     {
         var entity = await _db.Tenants
             .AsNoTracking()
             .Where(x => x.Id == query.Id && x.IsActive)
-            .Select(x => new TenantResponseDTO
+            .Select(x => new TenantResponse
             {
                 Id = x.Id,
                 Name = x.Name,
@@ -38,11 +38,11 @@ public class GetTenantByIdHandler
 
         if (entity is null)
         {
-            return ServiceResponseDTO<TenantResponseDTO>
+            return ServiceResponse<TenantResponse>
                 .ErrorResponse("Tenant not found.");
         }
 
-        return ServiceResponseDTO<TenantResponseDTO>
+        return ServiceResponse<TenantResponse>
             .SuccessResponse(entity);
     }
 }

@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿namespace DG.SupportDesk.Application.Dtos.Common;
 
-namespace DG.SupportDesk.Application.Dtos.Common;
-
-public class BaseResponseDTO<PKDataType>
+public class BaseResponse<PKDataType>
 {
     public required PKDataType Id { get; set; }
     public Guid TenantId { get; set; }

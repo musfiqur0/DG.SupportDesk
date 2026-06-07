@@ -13,7 +13,7 @@ public class DeleteTenantHandler
         _db = db;
     }
 
-    public async Task<ServiceResponseDTO<bool>> Handle(
+    public async Task<ServiceResponse<bool>> Handle(
         DeleteTenantCommand command,
         CancellationToken ct)
     {
@@ -22,7 +22,7 @@ public class DeleteTenantHandler
 
         if (existingEntity is null)
         {
-            return ServiceResponseDTO<bool>
+            return ServiceResponse<bool>
                 .ErrorResponse("Tenant not found or already deleted.");
         }
 
@@ -34,7 +34,7 @@ public class DeleteTenantHandler
         // 3. Save changes
         await _db.SaveChangesAsync(ct);
 
-        return ServiceResponseDTO<bool>.SuccessResponse(
+        return ServiceResponse<bool>.SuccessResponse(
             true,
             "Tenant deleted successfully.");
     }

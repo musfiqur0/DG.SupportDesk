@@ -31,7 +31,7 @@ public class TenantController : ControllerBase
     {
         try
         {
-            var response = await _bus.InvokeAsync<ServiceResponseDTO<TenantResponseDTO>>(
+            var response = await _bus.InvokeAsync<ServiceResponse<TenantResponse>>(
                 command,
                 ct);
 
@@ -50,7 +50,7 @@ public class TenantController : ControllerBase
     {
         try
         {
-            var response = await _bus.InvokeAsync<ServiceResponseDTO<TenantResponseDTO>>(
+            var response = await _bus.InvokeAsync<ServiceResponse<TenantResponse>>(
                 command,
                 ct);
 
@@ -70,7 +70,7 @@ public class TenantController : ControllerBase
     {
         try
         {
-            var response = await _bus.InvokeAsync<ServiceResponseDTO<bool>>(
+            var response = await _bus.InvokeAsync<ServiceResponse<bool>>(
                 new DeleteTenantCommand(id, updatedBy),
                 ct);
 
@@ -89,7 +89,7 @@ public class TenantController : ControllerBase
     {
         try
         {
-            var response = await _bus.InvokeAsync<ServiceResponseDTO<bool>>(
+            var response = await _bus.InvokeAsync<ServiceResponse<bool>>(
                 new HardDeleteTenantCommand(id),
                 ct);
 
@@ -108,7 +108,7 @@ public class TenantController : ControllerBase
     {
         try
         {
-            var response = await _bus.InvokeAsync<ServiceResponseDTO<TenantResponseDTO>>(
+            var response = await _bus.InvokeAsync<ServiceResponse<TenantResponse>>(
                 new GetTenantByIdQuery(id),
                 ct);
 
@@ -127,7 +127,7 @@ public class TenantController : ControllerBase
     {
         try
         {
-            var response = await _bus.InvokeAsync<ServiceResponseDTO<TenantResponseDTO>>(
+            var response = await _bus.InvokeAsync<ServiceResponse<TenantResponse>>(
                 new GetTenantByCodeQuery(code),
                 ct);
 
@@ -147,7 +147,7 @@ public class TenantController : ControllerBase
     {
         try
         {
-            var response = await _bus.InvokeAsync<ServiceResponseDTO<PagedResponseDTO<TenantResponseDTO>>>(
+            var response = await _bus.InvokeAsync<ServiceResponse<PagedResponse<TenantResponse>>>(
                 new GetTenantsQuery(pageNumber, pageSize),
                 ct);
 

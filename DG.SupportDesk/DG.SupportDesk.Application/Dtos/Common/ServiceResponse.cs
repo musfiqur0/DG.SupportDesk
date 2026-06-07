@@ -1,14 +1,14 @@
 ﻿namespace DG.SupportDesk.Application.Dtos.Common;
 
-public class ServiceResponseDTO<T>
+public class ServiceResponse<T>
 {
     public bool Success { get; set; }
     public string Message { get; set; } = null!;
     public T? Data { get; set; }
 
-    public static ServiceResponseDTO<T> SuccessResponse(T data, string message = "Success")
+    public static ServiceResponse<T> SuccessResponse(T data, string message = "Success")
     {
-        return new ServiceResponseDTO<T>
+        return new ServiceResponse<T>
         {
             Success = true,
             Message = message,
@@ -16,9 +16,9 @@ public class ServiceResponseDTO<T>
         };
     }
 
-    public static ServiceResponseDTO<T> ErrorResponse(string message)
+    public static ServiceResponse<T> ErrorResponse(string message)
     {
-        return new ServiceResponseDTO<T>
+        return new ServiceResponse<T>
         {
             Success = false,
             Message = message,

@@ -15,7 +15,7 @@ public class CreateTenantHandler
         _db = db;
     }
 
-    public async Task<ServiceResponseDTO<TenantResponseDTO>> Handle(
+    public async Task<ServiceResponse<TenantResponse>> Handle(
         CreateTenantCommand command,
         CancellationToken ct)
     {
@@ -24,7 +24,7 @@ public class CreateTenantHandler
             ct);
 
         if (exists)
-            return ServiceResponseDTO<TenantResponseDTO>
+            return ServiceResponse<TenantResponse>
                 .ErrorResponse("Tenant code already exists.");
 
         var tenantType = await _db.TenantTypes
@@ -32,7 +32,7 @@ public class CreateTenantHandler
             .FirstOrDefaultAsync(x => x.Id == command.TenantTypeId && x.IsActive, ct);
 
         if (tenantType is null)
-            return ServiceResponseDTO<TenantResponseDTO>
+            return ServiceResponse<TenantResponse>
                 .ErrorResponse("Tenant type not found.");
 
         var entity = new Tenant
@@ -54,7 +54,7 @@ public class CreateTenantHandler
             .Include(x => x.TenantType)
             .FirstAsync(x => x.Id == entity.Id, ct);
 
-        return ServiceResponseDTO<TenantResponseDTO>.SuccessResponse(
+        return ServiceResponse<TenantResponse>.SuccessResponse(
             TenantMapper.ToResponse(addedEntity),
             "Tenant created successfully.");
     }

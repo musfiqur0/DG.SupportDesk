@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DG.SupportDesk.Application.Features.Tenants.Contracts;
 
-public class TenantResponseDTO //: BaseResponseDTO<Guid>
+public class TenantResponse //: BaseResponseDTO<Guid>
 {
     public required Guid Id { get; set; }
     public string Name { get; set; } = null!;

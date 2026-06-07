@@ -14,7 +14,7 @@ public class GetTenantsHandler
         _db = db;
     }
 
-    public async Task<ServiceResponseDTO<PagedResponseDTO<TenantResponseDTO>>> Handle(
+    public async Task<ServiceResponse<PagedResponse<TenantResponse>>> Handle(
         GetTenantsQuery query,
         CancellationToken ct)
     {
@@ -31,7 +31,7 @@ public class GetTenantsHandler
             .OrderByDescending(x => x.CreatedAt)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .Select(x => new TenantResponseDTO
+            .Select(x => new TenantResponse
             {
                 Id = x.Id,
                 Name = x.Name,
@@ -46,7 +46,7 @@ public class GetTenantsHandler
             })
             .ToListAsync(ct);
 
-        var response = new PagedResponseDTO<TenantResponseDTO>
+        var response = new PagedResponse<TenantResponse>
         {
             PageNumber = pageNumber,
             PageSize = pageSize,
@@ -54,7 +54,7 @@ public class GetTenantsHandler
             Items = items
         };
 
-        return ServiceResponseDTO<PagedResponseDTO<TenantResponseDTO>>
+        return ServiceResponse<PagedResponse<TenantResponse>>
             .SuccessResponse(response);
     }
 }

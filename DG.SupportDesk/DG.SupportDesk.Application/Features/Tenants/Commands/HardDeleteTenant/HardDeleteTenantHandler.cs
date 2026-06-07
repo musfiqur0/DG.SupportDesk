@@ -13,7 +13,7 @@ public class HardDeleteTenantHandler
         _db = db;
     }
 
-    public async Task<ServiceResponseDTO<bool>> Handle(
+    public async Task<ServiceResponse<bool>> Handle(
         HardDeleteTenantCommand command,
         CancellationToken ct)
     {
@@ -21,14 +21,14 @@ public class HardDeleteTenantHandler
             .FirstOrDefaultAsync(x => x.Id == command.Id, ct);
 
         if (existingEntity is null)
-            return ServiceResponseDTO<bool>
+            return ServiceResponse<bool>
                 .ErrorResponse("Tenant not found.");
 
         _db.Tenants.Remove(existingEntity);
 
         await _db.SaveChangesAsync(ct);
 
-        return ServiceResponseDTO<bool>.SuccessResponse(
+        return ServiceResponse<bool>.SuccessResponse(
             true,
             "Tenant permanently deleted successfully.");
     }

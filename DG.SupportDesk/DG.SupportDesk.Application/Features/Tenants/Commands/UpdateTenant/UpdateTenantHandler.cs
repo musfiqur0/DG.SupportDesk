@@ -14,7 +14,7 @@ public class UpdateTenantHandler
         _db = db;
     }
 
-    public async Task<ServiceResponseDTO<TenantResponseDTO>> Handle(
+    public async Task<ServiceResponse<TenantResponse>> Handle(
         UpdateTenantCommand command,
         CancellationToken ct)
     {
@@ -23,21 +23,21 @@ public class UpdateTenantHandler
             .FirstOrDefaultAsync(x => x.Id == command.Id && x.IsActive, ct);
 
         if (existingEntity is null)
-            return ServiceResponseDTO<TenantResponseDTO>
+            return ServiceResponse<TenantResponse>
                 .ErrorResponse("Tenant not found.");
 
         var IsDuplicate = await _db.Tenants
             .AnyAsync(x => x.Code == command.Code && x.IsActive && x.Id != command.Id, ct);
 
         if (IsDuplicate)
-            return ServiceResponseDTO<TenantResponseDTO>
+            return ServiceResponse<TenantResponse>
                 .ErrorResponse("Tenant code already exists.");
 
         var IsTenantTypeExists = await _db.TenantTypes
            .AnyAsync(x => x.Id == command.TenantTypeId && x.IsActive, ct);
 
         if (!IsTenantTypeExists)
-            return ServiceResponseDTO<TenantResponseDTO>
+            return ServiceResponse<TenantResponse>
                 .ErrorResponse("Tenant type not found.");
 
         existingEntity.Name = command.Name.Trim();
@@ -54,7 +54,7 @@ public class UpdateTenantHandler
             .Include(x => x.TenantType)
             .FirstAsync(x => x.Id == command.Id, ct);
 
-        return ServiceResponseDTO<TenantResponseDTO>.SuccessResponse(
+        return ServiceResponse<TenantResponse>.SuccessResponse(
             TenantMapper.ToResponse(updatedEntity),
             "Tenant updated successfully.");
     }

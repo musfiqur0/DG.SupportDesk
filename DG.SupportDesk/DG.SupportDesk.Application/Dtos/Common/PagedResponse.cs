@@ -1,6 +1,6 @@
 ﻿namespace DG.SupportDesk.Application.Dtos.Common;
 
-public class PagedResponseDTO<T>
+public class PagedResponse<T>
 {
     public int PageNumber { get; set; }
     public int PageSize { get; set; }

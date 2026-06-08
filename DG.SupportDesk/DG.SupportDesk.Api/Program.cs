@@ -1,3 +1,4 @@
+using DG.SupportDesk.Api.Middlewares;
 using DG.SupportDesk.Application;
 using DG.SupportDesk.Infrastructure;
 using DG.SupportDesk.Infrastructure.Persistence;
@@ -26,6 +27,28 @@ builder.Host.UseWolverine(opts =>
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+// 1. Define your policies in the Service Collection
+builder.Services.AddCors(options =>
+{
+    // A relaxed policy for Development
+    options.AddPolicy("DevCorsPolicy", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+
+    // A strict policy for Production (Highly Recommended)
+    options.AddPolicy("ProdCorsPolicy", policy =>
+    {
+        // ONLY allow your actual frontend domains
+        policy.WithOrigins("https://my-frontend.com", "https://admin.my-frontend.com")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials(); // Required if using cookies/auth tokens
+    });
+});
+
 var app = builder.Build();
 
 // data seeding if no data exists only after DB creation
@@ -52,6 +75,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+var policyName = app.Environment.IsDevelopment() ? "DevCorsPolicy" : "ProdCorsPolicy";
+app.UseCors(policyName);
+
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.UseAuthorization();
 

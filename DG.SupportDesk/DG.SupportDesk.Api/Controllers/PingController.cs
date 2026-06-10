@@ -15,7 +15,7 @@ namespace DG.SupportDesk.Api.Controllers
         public async ValueTask<IActionResult> Test()
         {
             //Log.Information("Ping Successful");
-            //throw new Exception("Hello world, Testing Gbobal Exception Handler.");
+            throw new Exception("Hello world, Testing by Dev Musfiqur.");
             return Ok("Ping successfull");
         }
     }

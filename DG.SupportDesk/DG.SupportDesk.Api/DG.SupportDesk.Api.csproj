@@ -12,6 +12,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+    <PackageReference Include="Serilog.Enrichers.Process" Version="3.0.0" />
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
+    <PackageReference Include="Serilog.Sinks.Datadog.Logs" Version="0.6.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
     <PackageReference Include="WolverineFx" Version="6.4.3" />
     <PackageReference Include="WolverineFx.FluentValidation" Version="6.4.3" />
@@ -21,6 +26,10 @@
   <ItemGroup>
     <ProjectReference Include="..\DG.SupportDesk.Application\DG.SupportDesk.Application.csproj" />
     <ProjectReference Include="..\DG.SupportDesk.Infrastructure\DG.SupportDesk.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Logs\" />
   </ItemGroup>
 
 </Project>

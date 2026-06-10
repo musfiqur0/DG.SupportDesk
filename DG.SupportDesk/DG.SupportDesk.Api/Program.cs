@@ -1,3 +1,4 @@
+using DG.SupportDesk.Api.Extensions;
 using DG.SupportDesk.Api.Middlewares;
 using DG.SupportDesk.Application;
 using DG.SupportDesk.Infrastructure;
@@ -8,8 +9,12 @@ using Wolverine.FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add Serilog to the builder
+builder.Host.SerilogConfiguration();
+
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();  //for Serilog.Enrichers.ClientInfo
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
@@ -75,6 +80,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ClientInfoLogEnricherMiddleware>();
 
 var policyName = app.Environment.IsDevelopment() ? "DevCorsPolicy" : "ProdCorsPolicy";
 app.UseCors(policyName);

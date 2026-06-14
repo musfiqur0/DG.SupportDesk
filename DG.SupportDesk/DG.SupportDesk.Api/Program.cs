@@ -1,3 +1,5 @@
+using DG.SupportDesk.Api.Extensions;
+using DG.SupportDesk.Api.Middlewares;
 using DG.SupportDesk.Application;
 using DG.SupportDesk.Infrastructure;
 using DG.SupportDesk.Infrastructure.Persistence;
@@ -7,8 +9,12 @@ using Wolverine.FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add Serilog to the builder
+builder.Host.SerilogConfiguration();
+
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();  //for Serilog.Enrichers.ClientInfo
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
@@ -25,6 +31,28 @@ builder.Host.UseWolverine(opts =>
 });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// 1. Define your policies in the Service Collection
+builder.Services.AddCors(options =>
+{
+    // A relaxed policy for Development
+    options.AddPolicy("DevCorsPolicy", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+
+    // A strict policy for Production (Highly Recommended)
+    options.AddPolicy("ProdCorsPolicy", policy =>
+    {
+        // ONLY allow your actual frontend domains
+        policy.WithOrigins("https://my-frontend.com", "https://admin.my-frontend.com")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials(); // Required if using cookies/auth tokens
+    });
+});
 
 var app = builder.Build();
 
@@ -52,6 +80,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ClientInfoLogEnricherMiddleware>();
+
+var policyName = app.Environment.IsDevelopment() ? "DevCorsPolicy" : "ProdCorsPolicy";
+app.UseCors(policyName);
+
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.UseAuthorization();
 
